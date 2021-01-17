@@ -193,7 +193,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1000
+  m_Text: 0000
 --- !u!222 &436528717
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -282,7 +282,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 518991284}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 11500000, guid: 05d39b1085594c342a75b3accfdc822a, type: 3}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &518991284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,17 +534,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7214b64880d7e5b49bfc397842f50c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  init: 0
   totalActions: 0
-  count: 
-  score: []
   numActions: 0
   lastAction: 0
   lastStrategy: 0
-  regret: []
-  chance: []
+  initialRegret: 10
   lastOpponentAction: 0
-  lastActionRM: 
   sprites: {fileID: 21300000, guid: 327131761404c254db992939182ec533, type: 3}
 --- !u!1 &931267229
 GameObject:
@@ -937,7 +944,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 15
+  m_Text: 00
 --- !u!222 &1216058827
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1179,7 +1186,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1000
+  m_Text: 0000
 --- !u!222 &1681718398
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1224,6 +1231,10 @@ MonoBehaviour:
   scorePlayer: 1000
   textScoreIA: {fileID: 1681718397}
   textScorePlayer: {fileID: 436528716}
+  btnBlack: {fileID: 518991283}
+  btnRed: {fileID: 2100286591}
+  roundTime: 30
+  textRoundTime: {fileID: 1216058826}
 --- !u!4 &1704124889
 Transform:
   m_ObjectHideFlags: 0

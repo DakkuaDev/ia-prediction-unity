@@ -5,20 +5,20 @@ using UnityEngine;
 
 public class Bandit : MonoBehaviour
 {
-    public bool init;
+    private bool init;
     public int totalActions;
-    public int[] count;
-    public float[] score;
+    private int[] count;
+    private float[] score;
 
     public int numActions;
     public RPSAction lastAction;
     public int lastStrategy;
 
-    float initialRegret = 10f;
-    public float[] regret;
-    public float[] chance;
+    public float initialRegret = 10f;
+    private float[] regret;
+    private float[] chance;
     public RPSAction lastOpponentAction;
-    public RPSAction[] lastActionRM;
+    private RPSAction[] lastActionRM;
 
     public Sprite sprites;
     SpriteRenderer sr;
@@ -30,31 +30,17 @@ public class Bandit : MonoBehaviour
         InitRegretMatching();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     // Se va a ejecutar el algoritmo (por parte de la IA) para jugar, se cambia además el sprite por la acción escogida.
     public RPSAction Jugar()
     {
         RPSAction resultado;
-
         resultado = GetNextActionRM();
-        // TODO: Colocar el token en la posición de la acción tomada
 
         return resultado;
     }
 
-    // Se le da al oponente información de la elección de acción escogida
-    public void TellOpponentAction(RPSAction action)
-    {
-        TellOpponentActionRM(action);
-    }
-
     // Se inicializa el algoritmo, comprobando si ya se habia llamado previamente
-    public void InitRegretMatching()
+    private void InitRegretMatching()
     {
         if (init)
             return;
@@ -71,8 +57,19 @@ public class Bandit : MonoBehaviour
         init = true;
     }
 
+    // Se le dice al oponente la acción escogida
+    public void TellOpponentActionRM(RPSAction action)
+    {
+        int i;
+        for (i = 0; i < numActions; i++)
+        {
+            regret[i] += GetUtility((RPSAction)i, action);
+            regret[i] -= GetUtility(lastAction, action);
+        }
+    }
+
     // Se usa el algoritmo del Regret Matching para decidir la siguiente acción a escoger
-    public RPSAction GetNextActionRM()
+    private RPSAction GetNextActionRM()
     {
         float sum = 0f;
         float prob = 0f;
@@ -113,18 +110,8 @@ public class Bandit : MonoBehaviour
         return (RPSAction)(numActions - 1);
     }
 
-    // Se le dice al oponente la acción escogida con el Regret Matching
-    public void TellOpponentActionRM(RPSAction action)
-    {
-        int i;
-        for (i = 0; i < numActions; i++)
-        {
-            regret[i] += GetUtility((RPSAction)i, action);
-            regret[i] -= GetUtility(lastAction, action);
-        }
-    }
-
-    public RPSAction GetActionForStrategy(RPSAction strategy)
+    // Plan de estrategia de la IA a futuro 
+    private RPSAction GetActionForStrategy(RPSAction strategy)
     {
         RPSAction action;
         switch (strategy)
@@ -141,7 +128,7 @@ public class Bandit : MonoBehaviour
     }
 
     // Actualizo la utilidad (el remordimiento) al final de la ronda en función de los resultados
-    public float GetUtility(RPSAction myAction, RPSAction opponents)
+    private float GetUtility(RPSAction myAction, RPSAction opponents)
     {
         float utility = 0f;
         if (opponents == RPSAction.Red)
@@ -153,9 +140,9 @@ public class Bandit : MonoBehaviour
         }
         else if (opponents == RPSAction.Black)
         {
-            if (myAction == RPSAction.Red)
+            if (myAction == RPSAction.Black)
                 utility = 1f;
-            else if (myAction == RPSAction.Black)
+            else if (myAction == RPSAction.Red)
                 utility = -1f;
         }
         return utility;
