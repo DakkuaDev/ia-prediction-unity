@@ -32,10 +32,17 @@ public class GameController : MonoBehaviour
     [Range(500,3000)]    
     public int scoreIA, scorePlayer;
     public Text textScoreIA, textScorePlayer;
+    public Text multiplicator;
 
     // Buttons
     public Button btnBlack;
     public Button btnRed;
+
+    // Slider
+    public Slider sldMultiplicator;
+
+    // Info 
+    public Text infoPlayer, infoIA;
 
     // Timer
     [Range(10,30)]
@@ -50,6 +57,9 @@ public class GameController : MonoBehaviour
         initialPlayer = player.transform.position;
         initialIA = ia.transform.position;
         initialRoundTime = roundTime;
+
+        infoPlayer.enabled = false;
+        infoIA.enabled = false;
 
         // Pongo en escucha los botones del UI
         btnBlack.onClick.AddListener(delegate { PlayerPlay(RPSAction.Black); });
@@ -71,6 +81,7 @@ public class GameController : MonoBehaviour
         textScoreIA.text = scoreIA.ToString();
         textScorePlayer.text = scorePlayer.ToString();
 
+        multiplicator.text = "x" + sldMultiplicator.value.ToString();
     }
 
     public void IAPlay()
@@ -87,16 +98,12 @@ public class GameController : MonoBehaviour
                 ia.transform.position = redIA;
                 break;
         }
-
-        scoreIA -= 100;
-        Debug.Log(iaAction + "IA");
     }
 
     void PlayerPlay(RPSAction _playerAction)
     {
         playerAction = _playerAction;
 
-        // TODO: El jugador deberia apostar solo una vez no cada vez que la cambia de posición
         switch(playerAction)
         {
             case RPSAction.Black: 
@@ -108,17 +115,39 @@ public class GameController : MonoBehaviour
                 player.transform.position = redPlayer;
                 break;
         }
-
-        scorePlayer -= 100;
-        Debug.Log(playerAction + "Player");
     }
 
     void RoundResults()
     {
+        // Se retira el dinero apostado comprobando que se puede apostar en la ronda actual
+
+        if(100 * (int)sldMultiplicator.value < scorePlayer)
+        {
+            scorePlayer -= 100 * (int)sldMultiplicator.value;
+            infoPlayer.enabled = false;
+        }
+        else
+        {
+            infoPlayer.enabled = true;
+        }
+
+        var IAMultiplicator = Random.Range(1, 20);
+
+        if(100 * IAMultiplicator < scoreIA)
+        {
+            scoreIA -= 100 * IAMultiplicator;
+            infoIA.enabled = false;
+        }
+        else
+        {
+            infoIA.enabled = true;
+        }
+        
 
         // Decisión de la ruleta (trucada)
         int rouleteNumber = Random.Range(1, 37);
-        Debug.LogWarning("Número Ruleta: " + rouleteNumber);
+        //Debug.LogWarning("Número Ruleta: " + rouleteNumber);
+
         if (rouleteNumber > 0 && rouleteNumber <= 20) // 65% de posibilidad
         {
             rouleteAction = RPSAction.Black;
@@ -132,12 +161,18 @@ public class GameController : MonoBehaviour
         // Comprobación de Tokens
         if(playerAction == rouleteAction)
         {
-            scorePlayer += 200;
+            if (100 * (int)sldMultiplicator.value < scorePlayer)
+                scorePlayer += 200 * (int)sldMultiplicator.value;
         }
         if(iaAction == rouleteAction)
         {
-            scoreIA += 200;
+            if (100 * IAMultiplicator < scoreIA)
+                scoreIA += 200 * IAMultiplicator;
         }
+
+        // Traza de resultados de cada jugador
+
+
 
         ia.TellOpponentActionRM((RPSAction)rouleteAction);
         ResetRound();
