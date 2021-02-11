@@ -43,6 +43,11 @@ public class GameController : MonoBehaviour
 
     // Info 
     public Text infoPlayer, infoIA;
+    public Text benefPlayer, lossesPlayer;
+    public Text benefIA, lossesIA;
+
+    // Roulette
+    public Text rouletteNumber;
 
     // Timer
     [Range(10,30)]
@@ -58,6 +63,7 @@ public class GameController : MonoBehaviour
         initialIA = ia.transform.position;
         initialRoundTime = roundTime;
 
+        rouletteNumber.enabled = false;
         infoPlayer.enabled = false;
         infoIA.enabled = false;
 
@@ -65,9 +71,8 @@ public class GameController : MonoBehaviour
         btnBlack.onClick.AddListener(delegate { PlayerPlay(RPSAction.Black); });
         btnRed.onClick.AddListener(delegate { PlayerPlay(RPSAction.Red); });
 
-        // Juega la IA
-        // TODO: Que juege en un momento random del tiempo de ronda
-        IAPlay();
+        // Pongo el juego en marcha
+        ResetRound();
     }
 
     // Update is called once per frame
@@ -84,9 +89,9 @@ public class GameController : MonoBehaviour
         multiplicator.text = "x" + sldMultiplicator.value.ToString();
     }
 
-    public void IAPlay()
+    public IEnumerator IAPlay()
     {
-
+        yield return new WaitForSeconds(Random.Range(1, roundTime - 1));
         iaAction = ia.Jugar();
 
         switch(iaAction)
@@ -121,58 +126,76 @@ public class GameController : MonoBehaviour
     {
         // Se retira el dinero apostado comprobando que se puede apostar en la ronda actual
 
-        if(100 * (int)sldMultiplicator.value < scorePlayer)
+        if (100 * (int)sldMultiplicator.value <= scorePlayer)
         {
             scorePlayer -= 100 * (int)sldMultiplicator.value;
+            lossesPlayer.text = "-" + (100 * (int)sldMultiplicator.value).ToString();
             infoPlayer.enabled = false;
         }
         else
         {
             infoPlayer.enabled = true;
+            lossesPlayer.text = "- 000";
         }
+       
+        var IAMultiplicator = Random.Range(1, 10);
 
-        var IAMultiplicator = Random.Range(1, 20);
-
-        if(100 * IAMultiplicator < scoreIA)
+        if (100 * IAMultiplicator <= scoreIA)
         {
             scoreIA -= 100 * IAMultiplicator;
+            lossesIA.text = "-" + (100 * IAMultiplicator).ToString();
             infoIA.enabled = false;
         }
         else
         {
             infoIA.enabled = true;
+            lossesIA.text = "- 000";
         }
-        
-
+     
         // Decisión de la ruleta (trucada)
-        int rouleteNumber = Random.Range(1, 37);
+
+        int _rouleteNumber = Random.Range(1, 37);
+        rouletteNumber.enabled = true;
+        rouletteNumber.text = _rouleteNumber.ToString();
+
         //Debug.LogWarning("Número Ruleta: " + rouleteNumber);
 
-        if (rouleteNumber > 0 && rouleteNumber <= 20) // 65% de posibilidad
+        if (_rouleteNumber > 0 && _rouleteNumber <= 20) // 65% de posibilidad
         {
             rouleteAction = RPSAction.Black;
+            rouletteNumber.color = new Color(0, 0, 0);
         }
-        else if( rouleteNumber > 20 && rouleteNumber <= 37) // 35% de posibilidad
+        else if( _rouleteNumber > 20 && _rouleteNumber <= 37) // 35% de posibilidad
         {
             rouleteAction = RPSAction.Red;
+            rouletteNumber.color = new Color(254, 0, 0);
         }
         Debug.LogWarning(rouleteAction + " Ruleta");
+
 
         // Comprobación de Tokens
         if(playerAction == rouleteAction)
         {
-            if (100 * (int)sldMultiplicator.value < scorePlayer)
+            if (100 * (int)sldMultiplicator.value <= scorePlayer)
+            {
                 scorePlayer += 200 * (int)sldMultiplicator.value;
+                benefPlayer.text = "+ " + (200 * (int)sldMultiplicator.value).ToString();
+            }
+            else benefPlayer.text = "+ 000";
         }
-        if(iaAction == rouleteAction)
+        else benefPlayer.text = "+ 000";
+
+        if (iaAction == rouleteAction)
         {
-            if (100 * IAMultiplicator < scoreIA)
+            if (100 * IAMultiplicator <= scoreIA)
+            {
                 scoreIA += 200 * IAMultiplicator;
+                benefIA.text = "+" + (200 * IAMultiplicator).ToString();
+            }
+            else benefIA.text = "+ 000";
+               
         }
-
-        // Traza de resultados de cada jugador
-
-
+        else benefIA.text = "+ 000";
 
         ia.TellOpponentActionRM((RPSAction)rouleteAction);
         ResetRound();
@@ -180,13 +203,16 @@ public class GameController : MonoBehaviour
 
     void ResetRound()
     {
+        // Seteo todo
         player.transform.position = initialPlayer;
         ia.transform.position = initialIA;
 
         roundTime = initialRoundTime;
 
         game = true;
-        IAPlay();
+
+        // Juega la IA
+        StartCoroutine(IAPlay());
     }
 
     private void RoundTimer()
