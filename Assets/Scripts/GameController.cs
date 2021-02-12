@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+    #region variables
     // Game Clock
     private bool game;
 
@@ -28,18 +29,29 @@ public class GameController : MonoBehaviour
     public SpriteRenderer player;
     public Sprite sprites;
 
+    [Header("GAME PROPIERTIES")]
+    // Timer
+    [Range(10, 30)]
+    public float roundTime = 15;
+
     // Scores
     [Range(500,3000)]    
     public int scoreIA, scorePlayer;
-    public Text textScoreIA, textScorePlayer;
+
+    [Range(1, 37)]
+    public int rouletteDistribution;
+
+    [Header("GAME ELEMETS")]
+    public Text textScoreIA;
+    public Text textScorePlayer;
+
+    // Slider
+    public Slider sldMultiplicator;
     public Text multiplicator;
 
     // Buttons
     public Button btnBlack;
     public Button btnRed;
-
-    // Slider
-    public Slider sldMultiplicator;
 
     // Info 
     public Text infoPlayer, infoIA;
@@ -48,13 +60,9 @@ public class GameController : MonoBehaviour
 
     // Roulette
     public Text rouletteNumber;
-
-    // Timer
-    [Range(10,30)]
-    public float roundTime = 15;
     private float initialRoundTime;
     public Text textRoundTime;
-
+    #endregion
 
     private void Start()
     {
@@ -102,14 +110,13 @@ public class GameController : MonoBehaviour
             case RPSAction.Red:
                 ia.transform.position = redIA;
                 break;
+            case RPSAction.None: break;
         }
     }
 
     void PlayerPlay(RPSAction _playerAction)
     {
-        playerAction = _playerAction;
-
-        switch(playerAction)
+        switch(_playerAction)
         {
             case RPSAction.Black: 
                 playerAction = RPSAction.Black;
@@ -119,6 +126,7 @@ public class GameController : MonoBehaviour
                 playerAction = RPSAction.Red;
                 player.transform.position = redPlayer;
                 break;
+            case RPSAction.None: break;
         }
     }
 
@@ -126,10 +134,14 @@ public class GameController : MonoBehaviour
     {
         // Se retira el dinero apostado comprobando que se puede apostar en la ronda actual
 
-        if (100 * (int)sldMultiplicator.value <= scorePlayer)
+        bool playingPlayer = false;
+        bool playingIA = false;
+
+        if (100 * (int)sldMultiplicator.value <= scorePlayer && playerAction != RPSAction.None)
         {
             scorePlayer -= 100 * (int)sldMultiplicator.value;
             lossesPlayer.text = "-" + (100 * (int)sldMultiplicator.value).ToString();
+            playingPlayer = true;
             infoPlayer.enabled = false;
         }
         else
@@ -138,12 +150,13 @@ public class GameController : MonoBehaviour
             lossesPlayer.text = "- 000";
         }
        
-        var IAMultiplicator = Random.Range(1, 10);
+        var IAMultiplicator = Random.Range(1, 5);
 
-        if (100 * IAMultiplicator <= scoreIA)
+        if (100 * IAMultiplicator <= scoreIA && iaAction != RPSAction.None)
         {
             scoreIA -= 100 * IAMultiplicator;
             lossesIA.text = "-" + (100 * IAMultiplicator).ToString();
+            playingIA = true;
             infoIA.enabled = false;
         }
         else
@@ -160,23 +173,23 @@ public class GameController : MonoBehaviour
 
         //Debug.LogWarning("Número Ruleta: " + rouleteNumber);
 
-        if (_rouleteNumber > 0 && _rouleteNumber <= 20) // 65% de posibilidad
+        if (_rouleteNumber > 0 && _rouleteNumber <= rouletteDistribution) 
         {
             rouleteAction = RPSAction.Black;
             rouletteNumber.color = new Color(0, 0, 0);
         }
-        else if( _rouleteNumber > 20 && _rouleteNumber <= 37) // 35% de posibilidad
+        else if( _rouleteNumber > rouletteDistribution && _rouleteNumber <= 37) 
         {
             rouleteAction = RPSAction.Red;
             rouletteNumber.color = new Color(254, 0, 0);
         }
-        Debug.LogWarning(rouleteAction + " Ruleta");
 
+        //Debug.LogWarning(rouleteAction + " Ruleta");
 
         // Comprobación de Tokens
         if(playerAction == rouleteAction)
         {
-            if (100 * (int)sldMultiplicator.value <= scorePlayer)
+            if (playingPlayer)
             {
                 scorePlayer += 200 * (int)sldMultiplicator.value;
                 benefPlayer.text = "+ " + (200 * (int)sldMultiplicator.value).ToString();
@@ -187,7 +200,7 @@ public class GameController : MonoBehaviour
 
         if (iaAction == rouleteAction)
         {
-            if (100 * IAMultiplicator <= scoreIA)
+            if (playingIA)
             {
                 scoreIA += 200 * IAMultiplicator;
                 benefIA.text = "+" + (200 * IAMultiplicator).ToString();
@@ -204,6 +217,7 @@ public class GameController : MonoBehaviour
     void ResetRound()
     {
         // Seteo todo
+        playerAction = RPSAction.None;
         player.transform.position = initialPlayer;
         ia.transform.position = initialIA;
 

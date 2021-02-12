@@ -122,7 +122,7 @@ public class Bandit : MonoBehaviour
                 break;
             case RPSAction.Black:
                 action = RPSAction.Black;
-                break;
+                break;               
         }
         return action;
     }

@@ -1,5 +1,5 @@
 ﻿
 public enum RPSAction
 {
-    Red, Black
+    Red, Black, None
 }
