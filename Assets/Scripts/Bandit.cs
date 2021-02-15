@@ -14,7 +14,7 @@ public class Bandit : MonoBehaviour
     public RPSAction lastAction;
     public int lastStrategy;
 
-    public float initialRegret = 10f;
+    public float initialRegret = 15f;
     private float[] regret;
     private float[] chance;
     public RPSAction lastOpponentAction;
@@ -134,15 +134,19 @@ public class Bandit : MonoBehaviour
         if (opponents == RPSAction.Red)
         {
             if (myAction == RPSAction.Black)
-                utility = -1f;
+                utility = -2f;
             else if (myAction == RPSAction.Red)
-                utility = 1f;
+                utility = 2f;
+            else if (myAction == RPSAction.None)
+                utility = -1f;
         }
         else if (opponents == RPSAction.Black)
         {
             if (myAction == RPSAction.Black)
-                utility = 1f;
+                utility = 2f;
             else if (myAction == RPSAction.Red)
+                utility = -2f;
+            else if (myAction == RPSAction.None)
                 utility = -1f;
         }
         return utility;

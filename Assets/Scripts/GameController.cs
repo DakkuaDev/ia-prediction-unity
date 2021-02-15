@@ -57,6 +57,9 @@ public class GameController : MonoBehaviour
     public Text infoPlayer, infoIA;
     public Text benefPlayer, lossesPlayer;
     public Text benefIA, lossesIA;
+    public Text traceIA;
+    private float numberOfPlays = 1;
+    private float iaWins = 1;
 
     // Roulette
     public Text rouletteNumber;
@@ -66,12 +69,16 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        // Parámetros iniciales
         game = true;
+
         initialPlayer = player.transform.position;
         initialIA = ia.transform.position;
+
         initialRoundTime = roundTime;
 
         rouletteNumber.enabled = false;
+
         infoPlayer.enabled = false;
         infoIA.enabled = false;
 
@@ -97,6 +104,10 @@ public class GameController : MonoBehaviour
         multiplicator.text = "x" + sldMultiplicator.value.ToString();
     }
 
+    /// <summary>
+    /// Decisión de la IA
+    /// </summary>
+    /// <returns> RPSAction elegida </returns>
     public IEnumerator IAPlay()
     {
         yield return new WaitForSeconds(Random.Range(1, roundTime - 1));
@@ -114,6 +125,10 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Decisión del jugador
+    /// </summary>
+    /// <param name="_playerAction"> RPSAction elegida </param>
     void PlayerPlay(RPSAction _playerAction)
     {
         switch(_playerAction)
@@ -130,6 +145,9 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Logica de comprobación de resultados
+    /// </summary>
     void RoundResults()
     {
         // Se retira el dinero apostado comprobando que se puede apostar en la ronda actual
@@ -137,6 +155,7 @@ public class GameController : MonoBehaviour
         bool playingPlayer = false;
         bool playingIA = false;
 
+        // Jugador
         if (100 * (int)sldMultiplicator.value <= scorePlayer && playerAction != RPSAction.None)
         {
             scorePlayer -= 100 * (int)sldMultiplicator.value;
@@ -150,6 +169,7 @@ public class GameController : MonoBehaviour
             lossesPlayer.text = "- 000";
         }
        
+        // IA
         var IAMultiplicator = Random.Range(1, 5);
 
         if (100 * IAMultiplicator <= scoreIA && iaAction != RPSAction.None)
@@ -171,8 +191,6 @@ public class GameController : MonoBehaviour
         rouletteNumber.enabled = true;
         rouletteNumber.text = _rouleteNumber.ToString();
 
-        //Debug.LogWarning("Número Ruleta: " + rouleteNumber);
-
         if (_rouleteNumber > 0 && _rouleteNumber <= rouletteDistribution) 
         {
             rouleteAction = RPSAction.Black;
@@ -184,9 +202,9 @@ public class GameController : MonoBehaviour
             rouletteNumber.color = new Color(254, 0, 0);
         }
 
-        //Debug.LogWarning(rouleteAction + " Ruleta");
-
         // Comprobación de Tokens
+
+        // Jugador
         if(playerAction == rouleteAction)
         {
             if (playingPlayer)
@@ -198,22 +216,32 @@ public class GameController : MonoBehaviour
         }
         else benefPlayer.text = "+ 000";
 
+        // IA
         if (iaAction == rouleteAction)
         {
             if (playingIA)
             {
                 scoreIA += 200 * IAMultiplicator;
                 benefIA.text = "+" + (200 * IAMultiplicator).ToString();
+                iaWins++;
             }
             else benefIA.text = "+ 000";
                
         }
         else benefIA.text = "+ 000";
 
+        numberOfPlays++;
+        // Traza (Ratio) de IA: Victoria / Derrota
+        traceIA.text = (iaWins / numberOfPlays).ToString("F2"); 
+
+        
         ia.TellOpponentActionRM((RPSAction)rouleteAction);
         ResetRound();
     }
 
+    /// <summary>
+    /// Reinicio de la ronda
+    /// </summary>
     void ResetRound()
     {
         // Seteo todo
@@ -229,6 +257,9 @@ public class GameController : MonoBehaviour
         StartCoroutine(IAPlay());
     }
 
+    /// <summary>
+    /// Cronómetro de la ronda
+    /// </summary>
     private void RoundTimer()
     {
 
