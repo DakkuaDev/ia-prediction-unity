@@ -5,7 +5,7 @@ Small casino game demo, where use is made of action prediction algorithms to con
 - Functional gameplay with divisible bet, and simplified roulette options
 - Control over AI randomness 
 
-![Captura](https://user-images.githubusercontent.com/61831013/125989484-befe5aa1-6c06-4e0d-b63d-a936c32d8fbf.PNG)
+![Captura](https://user-images.githubusercontent.com/61831013/125993280-5d8168f0-4143-42ab-affe-2c54b34e6709.PNG)
 
 Author: Daniel Guerra Gallardo
 
